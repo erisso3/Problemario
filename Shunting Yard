@@ -1,0 +1,276 @@
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
+typedef struct nodo nodo;
+struct nodo{
+	char dato;
+	nodo* siguiente;
+	nodo* anterior;
+};
+nodo* inicio=NULL;
+nodo* anterior=NULL;
+
+nodo* inicio1=NULL;
+nodo* anterior1=NULL;
+
+nodo* inicio2=NULL;
+nodo* anterior2=NULL;
+
+nodo* inicio3=NULL;
+nodo* anterior3=NULL;
+
+nodo* nuevoNodo(char datito){
+	nodo* nuevo=NULL;
+	nuevo=(nodo*)malloc(sizeof(nodo));
+	if(nuevo!=NULL){
+		nuevo->dato=datito;
+		nuevo->siguiente= NULL;
+		nuevo->anterior=NULL;
+	}
+	return nuevo;
+}
+
+void Cola1(char datito){
+	nodo* nuevo = nuevoNodo(datito);
+	if(inicio==NULL){
+		inicio=nuevo;
+		anterior=nuevo;
+	}else{
+		nuevo->anterior=anterior;
+		anterior->siguiente=nuevo;
+		anterior=nuevo;
+	}
+}
+void Cola2(char datito){
+	nodo* nuevo = nuevoNodo(datito);
+	if(inicio2==NULL){
+		inicio2=nuevo;
+		anterior2=nuevo;
+	}else{
+		nuevo->anterior=anterior2;
+		anterior2->siguiente=nuevo;
+		anterior2=nuevo;
+	}
+}
+
+void Pila1(char datito){
+	nodo* nuevo = nuevoNodo(datito);
+	if(inicio1==NULL){
+		inicio1=nuevo;
+		anterior1=nuevo;
+	}else{
+		nuevo->anterior=inicio1;
+		inicio1->siguiente=nuevo;
+		inicio1=nuevo;
+	}
+}
+
+void Pila2(float datito){
+	nodo* nuevo = nuevoNodo(datito);
+	if(inicio3==NULL){
+		inicio3=nuevo;
+		anterior3=nuevo;
+	}else{
+		nuevo->anterior=inicio3;
+		inicio3->siguiente=nuevo;
+		inicio3=nuevo;
+	}
+}
+
+void expresion_polaca(){
+	nodo *aux1 = inicio;
+	while(aux1->siguiente!=NULL){
+		char c=aux1->dato;
+		nodo *aux2=inicio1;
+		switch(c){
+		case '(':
+			Pila1(c);	
+			break;
+		case '+':
+		case '-':
+			if(aux2==NULL){
+				Pila1(c);	
+			}
+			else{ 
+				while(aux2->dato=='*'||aux2->dato=='/'||aux2->dato=='^'){
+					Cola2(aux2->dato);
+					inicio1=inicio1->anterior;
+					aux2->anterior=NULL;
+					aux2->siguiente=NULL;
+					inicio1->siguiente=NULL;
+					free(aux2);
+					aux2=inicio1;
+				}
+				Pila1(c);
+			}
+			break;
+		case '*':
+		case '/':
+			if(aux2==NULL){
+				Pila1(c);	
+			}
+			else{ 
+				while(aux2->dato=='^'){
+					Cola2(aux2->dato);
+					inicio1=inicio1->anterior;
+					aux2->anterior=NULL;
+					aux2->siguiente=NULL;
+					inicio1->siguiente=NULL;
+					free(aux2);
+					aux2=inicio1;
+				}
+				Pila1(c);	
+			}
+			break;
+		case '^':
+			Pila1(c);	
+			break;
+		case ')':
+			while((aux2->dato)!='('){
+				Cola2(aux2->dato);
+				inicio1=inicio1->anterior;
+				aux2->anterior=NULL;
+				aux2->siguiente=NULL;
+				inicio1->siguiente=NULL;
+				free(aux2);
+				aux2=inicio1;
+			}
+			break;
+		default:
+			Cola2(c);
+		}
+		aux1=aux1->siguiente;
+	}
+	nodo *aux2=inicio1;
+	while(aux2!=NULL){
+		if(aux2->dato!='('){
+			Cola2(aux2->dato);
+		}
+		aux2=aux2->anterior;
+	}
+}
+
+void valor(){
+	float respuestita;
+	nodo *aux=inicio2;
+	while(aux!=NULL){
+		nodo *aux2=inicio3;
+		switch(aux->dato){
+		case '+':
+			respuestita=(inicio3->anterior->dato)+(inicio3->dato);
+			if(aux2->anterior->anterior!=NULL){
+				inicio3=aux2->anterior->anterior;
+				inicio3->siguiente=NULL;
+				inicio3->anterior=aux2->anterior->anterior->anterior;
+				free(aux2);
+				free(aux2->anterior);
+				//printf("suma %i",inicio4->dato);
+			}
+			else{
+				inicio3=NULL;	
+			}
+			Pila2(respuestita);
+			break;
+		case '-':
+			respuestita=(inicio3->anterior->dato)-(inicio3->dato);
+			if(aux2->anterior->anterior!=NULL){
+				inicio3=aux2->anterior->anterior;
+				inicio3->siguiente=NULL;
+				inicio3->anterior=aux2->anterior->anterior->anterior;
+				free(aux2);
+				free(aux2->anterior);
+			}
+			else{
+				inicio3=NULL;	
+			}
+			Pila2(respuestita);
+			break;
+		case '*':
+			respuestita=((inicio3->anterior->dato)*(inicio3->dato));
+			if(aux2->anterior->anterior!=NULL){
+				inicio3=aux2->anterior->anterior;
+				inicio3->siguiente=NULL;
+				inicio3->anterior=aux2->anterior->anterior->anterior;
+				free(aux2);
+				free(aux2->anterior);
+			}
+			else{
+				inicio3=NULL;	
+			}
+			Pila2(respuestita);
+			break;
+		case '/':
+			respuestita=((inicio3->anterior->dato)/(inicio3->dato));
+			if(aux2->anterior->anterior!=NULL){
+				inicio3=aux2->anterior->anterior;
+				inicio3->siguiente=NULL;
+				inicio3->anterior=aux2->anterior->anterior->anterior;
+				free(aux2);
+				free(aux2->anterior);
+			}
+			else{
+				inicio3=NULL;	
+			}
+			Pila2(respuestita);
+			break;
+		case '^':
+			respuestita=pow((inicio3->anterior->dato),(inicio3->dato));
+			if(aux2->anterior->anterior!=NULL){
+				inicio3=aux2->anterior->anterior;
+				inicio3->siguiente=NULL;
+				inicio3->anterior=aux2->anterior->anterior->anterior;
+				free(aux2);
+				free(aux2->anterior);
+			}
+			else{
+				inicio3=NULL;	
+			}
+			Pila2(respuestita);
+			break;
+		default:
+			respuestita=(aux->dato)-48;
+			Pila2(respuestita);
+		}
+		aux=aux->siguiente;
+	}
+	printf("\t\t\t\tResultado:%.0f",respuestita);
+}
+
+void leerCola1(){
+	nodo *aux = inicio;
+	while(aux!=NULL){
+		aux = aux->siguiente;
+	}
+}
+
+void leerCola2(){
+	nodo *aux = inicio2;
+	while(aux!=NULL){
+		printf("%c", aux->dato);
+		aux = aux->siguiente;
+	}
+}
+
+int main(int argc, char *argv[]){
+	int a=0;
+	char funcion[50];
+	for(int i=0;i<50;i++){
+		funcion[i]='.';
+	}
+	printf("\t\t\t\t\tIngresa una funcion\n");
+	scanf("%s",&funcion[0]);
+	printf("\n-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-\n\n");
+	do{
+		char infuncion=funcion[a];
+		Cola1(infuncion);
+		a+=1;
+	} while(funcion[a]!='.');
+	leerCola1();
+	printf("\t\t\t\t\tExpresion Polaca: \n");
+	expresion_polaca();
+	leerCola2();
+	printf("\n\t");
+	valor();
+	
+	return 0;
+}
